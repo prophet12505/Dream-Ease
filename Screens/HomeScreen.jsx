@@ -1,4 +1,4 @@
-import { StyleSheet, View, Button, Text} from 'react-native';
+import { StyleSheet, View, Button, Text, TouchableOpacity} from 'react-native';
 import React from 'react'
 import { Audio } from 'expo-av';
 import { useState,useEffect } from 'react';
@@ -113,14 +113,23 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Select an Audio File to Play:</Text>
+      <Text style={styles.header}>Your Hypnosis list:</Text>
+      <View style={styles.audioList}>
       {audioFiles.map((filename, index) => (
-        <Button
-          key={index}
-          title={filename}
-          onPress={() => playSound(filename)}
-        />
+        // <Button
+        //   key={index}
+        //   title={filename}
+        //   onPress={() => playSound(filename)}
+        // />
+        <TouchableOpacity
+        key={index}
+        style={styles.audioItem}
+        onPress={() => playSound(filename)}
+      >
+        <Text style={styles.audioText}>{filename}</Text>
+      </TouchableOpacity>
       ))}
+      </View>
       {sound && (
         <View style={styles.audioPlayer}>
           <Button title={isPlaying ? 'Pause' : 'Play'} onPress={pauseOrResume} />
@@ -172,6 +181,18 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#f0f0f0',
     padding: 10,
+  },
+  audioList: {
+    width: '80%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 10,
+  },
+  audioItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   slider: {
     width: '100%',
