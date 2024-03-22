@@ -12,7 +12,6 @@ const HomeScreen = () => {
   const [durationMillis, setDurationMillis] = useState(0);
   const [volume, setVolume] = useState(1.0);
   const [loop, setLoop] = useState(false);
-
   useEffect(() => {
     loadAudioFiles();
     return () => {
@@ -21,7 +20,6 @@ const HomeScreen = () => {
       }
     };
   }, []);
-
   async function loadAudioFiles() {
     try {
       const directory = `${FileSystem.documentDirectory}hypno/`;
@@ -32,7 +30,6 @@ const HomeScreen = () => {
       console.error('Failed to load audio files', error);
     }
   }
-
   async function playSound(filename) {
     try {
       // Unload the current sound if it exists and is playing
@@ -41,7 +38,6 @@ const HomeScreen = () => {
         await sound.unloadAsync();
         setSound(null);
       }
-  
       const uri = `${FileSystem.documentDirectory}hypno/${filename}`;
       const { sound } = await Audio.Sound.createAsync({ uri }, onPlaybackStatusUpdate);
       setSound(sound);
@@ -51,7 +47,6 @@ const HomeScreen = () => {
       console.error('Failed to play sound', error);
     }
   }
-
   async function pauseOrResume() {
     if (sound) {
       if (isPlaying) {
@@ -77,7 +72,6 @@ const HomeScreen = () => {
       }
     }
   }
-
   useEffect(() => {
     const interval = setInterval(() => {
       if (sound && isPlaying) {
@@ -90,27 +84,23 @@ const HomeScreen = () => {
     }, 100);
     return () => clearInterval(interval);
   }, [sound, isPlaying]);
-
   async function seekAudio(position) {
     if (sound) {
       await sound.setPositionAsync(position);
     }
   }
-
   async function setLooping(looping) {
     if (sound) {
       await sound.setIsLoopingAsync(looping);
       setLoop(looping);
     }
   }
-
   async function setAudioVolume(vol) {
     if (sound) {
       await sound.setVolumeAsync(vol);
       setVolume(vol);
     }
   }
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Hypnosis list:</Text>
@@ -160,9 +150,7 @@ const HomeScreen = () => {
     </View>
   );
 }
-
 export default HomeScreen
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -183,16 +171,22 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   audioList: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
+    width: '100%',
   },
   audioItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    marginBottom: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   slider: {
     width: '100%',
