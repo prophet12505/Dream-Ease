@@ -6,6 +6,8 @@ import * as FileSystem from 'expo-file-system';
 
 import { useRef } from 'react';
 import AudioPlayer from '../components/AudioPlayer';
+// todo:add whitenoise list
+//
 const HomeScreen = () => {
   const [audioFiles, setAudioFiles] = useState([]);
   const audioPlayerRef=useRef();
@@ -26,27 +28,22 @@ const HomeScreen = () => {
 
   async function loadAudioFiles() {
     try {
+      //load hypnosis files
       const directory = `${FileSystem.documentDirectory}hypno/`;
       const files = await FileSystem.readDirectoryAsync(directory);
       const audioFiles = files.filter(file => file.endsWith('.wav'));
       setAudioFiles(audioFiles);
+      //
     } catch (error) {
       console.error('Failed to load audio files', error);
     }
   }
   //playSound is local method to this homescreen
-  
-  
-
- 
- 
-  
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Hypnosis list:</Text>
       <View style={styles.audioList}>
       {audioFiles.map((filename, index) => (
-
         <TouchableOpacity
         key={index}
         style={styles.audioItem}
@@ -75,7 +72,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-
   audioList: {
     width: '100%',
   },

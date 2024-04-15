@@ -58,7 +58,7 @@ const RecordScreen = () => {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
+      <Text>Record Screen</Text>
         <Button
         onPress={recording ? stopRecording : startRecording}
         title={recording ? "Stop" : "Record My Voice"}
