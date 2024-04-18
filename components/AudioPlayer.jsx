@@ -28,14 +28,34 @@ const AudioPlayer = forwardRef((props, ref) => {
     return () => clearInterval(interval);
   }, [sound, isPlaying]);
   
-  async function playSound(filename) {
+  async function playSound(filename, folder = 'hypno') {
     try {
       if (sound && isPlaying) {
         await sound.unloadAsync();
         setSound(null);
       }
-      const uri = `${FileSystem.documentDirectory}hypno/${filename}`;
-      const { sound } = await Audio.Sound.createAsync({ uri }, onPlaybackStatusUpdate);
+  
+      let source;
+      if (folder === 'hypno') {
+        const directory = `${FileSystem.documentDirectory}${folder}/`;
+        const uri = `${directory}${filename}`;
+        source = { uri };
+      } else if (folder === 'whitenoise') {
+        switch (filename) {
+          case 'whitenoise1.mp3':
+            source = require('../assets/whitenoise/whitenoise1.mp3');
+            break;
+          case 'whitenoise2.mp3':
+            source = require('../assets/whitenoise/whitenoise2.mp3');
+            break;
+          // Add more cases as needed
+          default:
+            console.error(`Unknown whitenoise file: ${filename}`);
+            return;
+        }
+      }
+  
+      const { sound } = await Audio.Sound.createAsync(source, onPlaybackStatusUpdate);
       setSound(sound);
       setIsPlaying(true);
       await sound.playAsync();
@@ -43,7 +63,6 @@ const AudioPlayer = forwardRef((props, ref) => {
       console.error('Failed to play sound', error);
     }
   }
-
   async function pauseOrResume() {
     if (sound) {
       if (isPlaying) {
