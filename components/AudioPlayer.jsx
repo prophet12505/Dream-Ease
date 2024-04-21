@@ -39,7 +39,7 @@ const AudioPlayer = forwardRef((props, ref) => {
         setSounds([]);
         setCurrentSoundIndex(null);
       }
-
+  
       let source;
       if (folder === 'hypno') {
         const directory = `${FileSystem.documentDirectory}${folder}/`;
@@ -76,12 +76,16 @@ const AudioPlayer = forwardRef((props, ref) => {
   }
 
   async function pauseOrResume() {
-    if (isPlaying && sounds[currentSoundIndex]) {
-      await sounds[currentSoundIndex].pauseAsync();
-      setIsPlaying(false);
-    } else if (sounds[currentSoundIndex]) {
-      await sounds[currentSoundIndex].playAsync();
-      setIsPlaying(true);
+    if (sounds[currentSoundIndex]) {
+      if (isPlaying) {
+        await sounds[currentSoundIndex].pauseAsync();
+      } else {
+        if (positionMillis >= durationMillis) {
+          await sounds[currentSoundIndex].setPositionAsync(0);
+        }
+        await sounds[currentSoundIndex].playAsync();
+      }
+      setIsPlaying(!isPlaying);
     }
   }
 
