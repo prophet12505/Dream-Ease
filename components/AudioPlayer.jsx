@@ -1,4 +1,5 @@
-import { StyleSheet, View, Button } from "react-native";
+import { StyleSheet, View, Button,TouchableOpacity,Text } from "react-native";
+import Icon from 'react-native-vector-icons/FontAwesome';
 import React from "react";
 import { useState, useEffect } from "react";
 import { forwardRef } from "react";
@@ -6,7 +7,7 @@ import Slider from "@react-native-community/slider";
 import { useImperativeHandle } from "react";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
-
+//bug: after changing volume to 0 and start a new one, the volume is not aligned
 //bug: multiple sound plays clash with each other
 const AudioPlayer = forwardRef((props, ref) => {
   const [sounds, setSounds] = useState([]);
@@ -148,7 +149,12 @@ const AudioPlayer = forwardRef((props, ref) => {
 
   return (
     <View style={styles.audioPlayer}>
-      <Button title={isPlaying ? 'Pause' : 'Play'} onPress={pauseOrResume} />
+      {/* <Button title={isPlaying ? 'Pause' : 'Play'} onPress={pauseOrResume} /> */}
+      <TouchableOpacity onPress={pauseOrResume} style={styles.playButton}>
+        <Text>
+          <Icon name={isPlaying ? 'pause' : 'play'} size={30} color="#ffffff" />
+        </Text>
+      </TouchableOpacity>
       <Slider
         style={styles.slider}
         value={positionMillis}
@@ -186,6 +192,16 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#f0f0f0',
     padding: 10,
+    // display: 'flex',
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // justifyContent: 'space-between',
+  },
+  playButton: {
+    width: 50,
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#1E90FF',
   },
   slider: {
     width: '100%',
