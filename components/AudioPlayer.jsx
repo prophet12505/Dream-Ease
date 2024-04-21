@@ -65,6 +65,7 @@ const AudioPlayer = forwardRef((props, ref) => {
         source,
         onPlaybackStatusUpdate
       );
+      sound.setIsLoopingAsync(loop); // Set looping when sound is created
       setSounds([sound]);
       setCurrentSoundIndex(0);
       setIsPlaying(true);
@@ -110,7 +111,10 @@ const AudioPlayer = forwardRef((props, ref) => {
       setPositionMillis(status.positionMillis);
       setDurationMillis(status.durationMillis);
       setIsPlaying(status.isPlaying);
-      if (status.didJustFinish) {
+      if (status.didJustFinish && loop) { // Check loop status here
+        setPositionMillis(0);
+        sounds[currentSoundIndex].playAsync(); // Restart sound if looping is enabled
+      } else if (status.didJustFinish) {
         setPositionMillis(0);
         setIsPlaying(false);
       }
