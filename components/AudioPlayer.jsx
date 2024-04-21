@@ -9,7 +9,8 @@ import { Audio } from "expo-av";
 
 //bug: multiple sound plays clash with each other
 const AudioPlayer = forwardRef((props, ref) => {
-  const [sound, setSound] = useState(null);
+  const [sounds, setSounds] = useState([]);
+  const [currentSoundIndex, setCurrentSoundIndex] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [positionMillis, setPositionMillis] = useState(0);
   const [durationMillis, setDurationMillis] = useState(0);
@@ -18,38 +19,40 @@ const AudioPlayer = forwardRef((props, ref) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (sound && isPlaying) {
-        sound.getStatusAsync().then((status) => {
-          setPositionMillis(status.positionMillis);
-          setDurationMillis(status.durationMillis);
-          setIsPlaying(status.isPlaying);
-        });
+      if (isPlaying) {
+        if (sounds[currentSoundIndex]) {
+          sounds[currentSoundIndex].getStatusAsync().then((status) => {
+            setPositionMillis(status.positionMillis);
+            setDurationMillis(status.durationMillis);
+            setIsPlaying(status.isPlaying);
+          });
+        }
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [sound, isPlaying]);
+  }, [isPlaying, sounds, currentSoundIndex]);
 
-  async function playSound(filename, folder = "hypno") {
+  async function playSound(filename, folder = 'hypno') {
     try {
-      if (sound && isPlaying) {
-        await sound.unloadAsync();
-        setSound(null);
+      if (isPlaying && sounds[currentSoundIndex]) {
+        await sounds[currentSoundIndex].unloadAsync();
+        setSounds([]);
+        setCurrentSoundIndex(null);
       }
 
       let source;
-      if (folder === "hypno") {
+      if (folder === 'hypno') {
         const directory = `${FileSystem.documentDirectory}${folder}/`;
         const uri = `${directory}${filename}`;
         source = { uri };
-      } else if (folder === "whitenoise") {
+      } else if (folder === 'whitenoise') {
         const whitenoiseFiles = {
           '001.mp3': require('../assets/whitenoise/001.mp3'),
           '002.mp3': require('../assets/whitenoise/002.mp3'),
           '003.mp3': require('../assets/whitenoise/003.mp3'),
           '004.mp3': require('../assets/whitenoise/004.mp3'),
-          // Add more filenames and require statements as needed
         };
-  
+
         if (whitenoiseFiles[filename]) {
           source = whitenoiseFiles[filename];
         } else {
@@ -62,43 +65,42 @@ const AudioPlayer = forwardRef((props, ref) => {
         source,
         onPlaybackStatusUpdate
       );
-      setSound(sound);
+      setSounds([sound]);
+      setCurrentSoundIndex(0);
       setIsPlaying(true);
       await sound.playAsync();
     } catch (error) {
-      console.error("Failed to play sound", error);
+      console.error('Failed to play sound', error);
     }
   }
+
   async function pauseOrResume() {
-    if (sound) {
-      if (isPlaying) {
-        await sound.pauseAsync();
-      } else {
-        if (positionMillis >= durationMillis) {
-          await sound.setPositionAsync(0);
-        }
-        await sound.playAsync();
-      }
-      setIsPlaying(!isPlaying);
+    if (isPlaying && sounds[currentSoundIndex]) {
+      await sounds[currentSoundIndex].pauseAsync();
+      setIsPlaying(false);
+    } else if (sounds[currentSoundIndex]) {
+      await sounds[currentSoundIndex].playAsync();
+      setIsPlaying(true);
     }
   }
 
   async function seekAudio(position) {
-    if (sound) {
-      await sound.setPositionAsync(position);
+    if (sounds[currentSoundIndex]) {
+      await sounds[currentSoundIndex].setPositionAsync(position);
+      setPositionMillis(position);
     }
   }
 
   async function setLooping(looping) {
-    if (sound) {
-      await sound.setIsLoopingAsync(looping);
+    if (sounds[currentSoundIndex]) {
+      await sounds[currentSoundIndex].setIsLoopingAsync(looping);
       setLoop(looping);
     }
   }
 
   async function setAudioVolume(vol) {
-    if (sound) {
-      await sound.setVolumeAsync(vol);
+    if (sounds[currentSoundIndex]) {
+      await sounds[currentSoundIndex].setVolumeAsync(vol);
       setVolume(vol);
     }
   }
@@ -115,7 +117,6 @@ const AudioPlayer = forwardRef((props, ref) => {
     }
   }
 
-  // Expose methods and state to parent component
   useImperativeHandle(ref, () => ({
     playSound,
     pauseOrResume,
@@ -129,9 +130,17 @@ const AudioPlayer = forwardRef((props, ref) => {
     loop,
   }));
 
+  useEffect(() => {
+    return () => {
+      sounds.forEach(async (sound) => {
+        await sound.unloadAsync();
+      });
+    };
+  }, [sounds]);
+
   return (
     <View style={styles.audioPlayer}>
-      <Button title={isPlaying ? "Pause" : "Play"} onPress={pauseOrResume} />
+      <Button title={isPlaying ? 'Pause' : 'Play'} onPress={pauseOrResume} />
       <Slider
         style={styles.slider}
         value={positionMillis}
@@ -143,7 +152,7 @@ const AudioPlayer = forwardRef((props, ref) => {
       />
       <View style={styles.controls}>
         <Button
-          title={loop ? "Loop On" : "Loop Off"}
+          title={loop ? 'Loop On' : 'Loop Off'}
           onPress={() => setLooping(!loop)}
         />
         <Slider
@@ -160,14 +169,27 @@ const AudioPlayer = forwardRef((props, ref) => {
     </View>
   );
 });
+
 const styles = StyleSheet.create({
   audioPlayer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#f0f0f0',
     padding: 10,
   },
+  slider: {
+    width: '100%',
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  volumeSlider: {
+    width: '70%',
+  },
 });
+
 export default AudioPlayer;
