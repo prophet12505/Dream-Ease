@@ -1,11 +1,12 @@
-import { StyleSheet, View, Button} from 'react-native';
-import React from 'react'
-import { useState,useEffect } from 'react';
-import { forwardRef } from 'react';
-import Slider from '@react-native-community/slider';
-import { useImperativeHandle } from 'react';
-import * as FileSystem from 'expo-file-system';
-import { Audio } from 'expo-av';
+import { StyleSheet, View, Button } from "react-native";
+import React from "react";
+import { useState, useEffect } from "react";
+import { forwardRef } from "react";
+import Slider from "@react-native-community/slider";
+import { useImperativeHandle } from "react";
+import * as FileSystem from "expo-file-system";
+import { Audio } from "expo-av";
+
 //bug: multiple sound plays clash with each other
 const AudioPlayer = forwardRef((props, ref) => {
   const [sound, setSound] = useState(null);
@@ -18,7 +19,7 @@ const AudioPlayer = forwardRef((props, ref) => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (sound && isPlaying) {
-        sound.getStatusAsync().then(status => {
+        sound.getStatusAsync().then((status) => {
           setPositionMillis(status.positionMillis);
           setDurationMillis(status.durationMillis);
           setIsPlaying(status.isPlaying);
@@ -27,40 +28,45 @@ const AudioPlayer = forwardRef((props, ref) => {
     }, 100);
     return () => clearInterval(interval);
   }, [sound, isPlaying]);
-  
-  async function playSound(filename, folder = 'hypno') {
+
+  async function playSound(filename, folder = "hypno") {
     try {
       if (sound && isPlaying) {
         await sound.unloadAsync();
         setSound(null);
       }
-  
+
       let source;
-      if (folder === 'hypno') {
+      if (folder === "hypno") {
         const directory = `${FileSystem.documentDirectory}${folder}/`;
         const uri = `${directory}${filename}`;
         source = { uri };
-      } else if (folder === 'whitenoise') {
-        switch (filename) {
-          case 'whitenoise1.mp3':
-            source = require('../assets/whitenoise/whitenoise1.mp3');
-            break;
-          case 'whitenoise2.mp3':
-            source = require('../assets/whitenoise/whitenoise2.mp3');
-            break;
-          // Add more cases as needed
-          default:
-            console.error(`Unknown whitenoise file: ${filename}`);
-            return;
+      } else if (folder === "whitenoise") {
+        const whitenoiseFiles = {
+          '001.mp3': require('../assets/whitenoise/001.mp3'),
+          '002.mp3': require('../assets/whitenoise/002.mp3'),
+          '003.mp3': require('../assets/whitenoise/003.mp3'),
+          '004.mp3': require('../assets/whitenoise/004.mp3'),
+          // Add more filenames and require statements as needed
+        };
+  
+        if (whitenoiseFiles[filename]) {
+          source = whitenoiseFiles[filename];
+        } else {
+          console.error(`File ${filename} not found in whitenoise directory`);
+          return;
         }
       }
-  
-      const { sound } = await Audio.Sound.createAsync(source, onPlaybackStatusUpdate);
+
+      const { sound } = await Audio.Sound.createAsync(
+        source,
+        onPlaybackStatusUpdate
+      );
       setSound(sound);
       setIsPlaying(true);
       await sound.playAsync();
     } catch (error) {
-      console.error('Failed to play sound', error);
+      console.error("Failed to play sound", error);
     }
   }
   async function pauseOrResume() {
@@ -124,41 +130,44 @@ const AudioPlayer = forwardRef((props, ref) => {
   }));
 
   return (
-     <View style={styles.audioPlayer}>
-          <Button title={isPlaying ? 'Pause' : 'Play'} onPress={pauseOrResume} />
-          <Slider
-            style={styles.slider}
-            value={positionMillis}
-            maximumValue={durationMillis}
-            onSlidingComplete={seekAudio}
-            minimumTrackTintColor="#1E90FF"
-            maximumTrackTintColor="#000000"
-            thumbTintColor="#1E90FF"
-          />
-          <View style={styles.controls}>
-            <Button title={loop ? "Loop On" : "Loop Off"} onPress={() => setLooping(!loop)} />
-            <Slider
-              style={styles.volumeSlider}
-              value={volume}
-              minimumValue={0}
-              maximumValue={1}
-              onSlidingComplete={setAudioVolume}
-              minimumTrackTintColor="#1E90FF"
-              maximumTrackTintColor="#000000"
-              thumbTintColor="#1E90FF"
-            />
-          </View>
-        </View>
-  )
+    <View style={styles.audioPlayer}>
+      <Button title={isPlaying ? "Pause" : "Play"} onPress={pauseOrResume} />
+      <Slider
+        style={styles.slider}
+        value={positionMillis}
+        maximumValue={durationMillis}
+        onSlidingComplete={seekAudio}
+        minimumTrackTintColor="#1E90FF"
+        maximumTrackTintColor="#000000"
+        thumbTintColor="#1E90FF"
+      />
+      <View style={styles.controls}>
+        <Button
+          title={loop ? "Loop On" : "Loop Off"}
+          onPress={() => setLooping(!loop)}
+        />
+        <Slider
+          style={styles.volumeSlider}
+          value={volume}
+          minimumValue={0}
+          maximumValue={1}
+          onSlidingComplete={setAudioVolume}
+          minimumTrackTintColor="#1E90FF"
+          maximumTrackTintColor="#000000"
+          thumbTintColor="#1E90FF"
+        />
+      </View>
+    </View>
+  );
 });
 const styles = StyleSheet.create({
   audioPlayer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     padding: 10,
   },
 });
-export default AudioPlayer
+export default AudioPlayer;
