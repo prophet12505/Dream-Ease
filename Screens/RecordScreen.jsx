@@ -3,16 +3,18 @@ import React from 'react'
 import { Audio } from 'expo-av';
 import { useState,useEffect } from 'react';
 import * as FileSystem from 'expo-file-system';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRef } from 'react';
 import AudioPlayer from '../components/AudioPlayer';
+// does not have dependency on homescreen 
 const RecordScreen = () => {
   const [recording, setRecording] = useState();
-  const [sound, setSound] = useState(null);
-  const [filename, setFilename] = useState('recorded_audio');
   const [savedRecordingURI, setSavedRecordingURI] = useState(null);
+  const [filename, setFilename] = useState('recorded_audio');
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-
+  const navigation = useNavigation(); // <-- Initialize navigation hook
+  const [sound, setSound] = useState();
   async function startRecording() {
     try {
       if (permissionResponse.status !== 'granted') {
@@ -33,6 +35,8 @@ const RecordScreen = () => {
       console.error('Failed to start recording', err);
     }
   }
+  //play Recording doesn't exist yet
+
 
   async function stopRecording() {
     console.log('Stopping recording..');
@@ -51,7 +55,6 @@ const RecordScreen = () => {
       console.warn('No recording to save');
       return;
     }
-
     try {
       const hypnoDirectory = `${FileSystem.documentDirectory}hypno/`;
       await FileSystem.makeDirectoryAsync(hypnoDirectory, { intermediates: true });
@@ -71,23 +74,19 @@ const RecordScreen = () => {
     setSound(sound);
     await sound.playAsync();
   }
-
+  async function navigateToSelectCoverNoise() {
+    navigation.navigate('SelectCoverNoiseScreen'); // <-- Navigate to new screen
+  }
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Record Screen</Text>
-      <TextInput
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Text>Record Screen</Text><TextInput
         style={styles.input}
         placeholder="Enter filename"
         value={filename}
         onChangeText={setFilename}
-      />
-      <Button
+      /><Button
         onPress={recording ? stopRecording : startRecording}
         title={recording ? "Stop" : "Record My Voice"}
-      />
-      {savedRecordingURI && <Button onPress={saveRecording} title="Save Recording" />}
-      {savedRecordingURI && <Button onPress={playSound} title="Play Recording" />}
-    </View>
+      />{savedRecordingURI && <Button onPress={saveRecording} title="Save Recording" />}{savedRecordingURI && <Button onPress={playSound} title="Play Recording" />}{savedRecordingURI && <Button onPress={navigateToSelectCoverNoise} title="Next Step" />}<AudioPlayer /></View>
   );
 };
 

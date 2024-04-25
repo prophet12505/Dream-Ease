@@ -82,8 +82,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Hypnosis list:</Text>
-      <View style={styles.audioList}>
-        {hypnoFiles.map((filename, index) => (
+      <View style={styles.audioList}>{hypnoFiles.map((filename, index) => (
           <TouchableOpacity
             key={index}
             style={styles.audioItem}
@@ -91,8 +90,7 @@ const HomeScreen = () => {
           >
             <Text style={styles.audioText}>{filename}</Text>
           </TouchableOpacity>
-        ))}
-      </View>
+        ))}</View>
       <Text style={styles.header}>Your White Noise list:</Text>
       <FlatList
         data={whiteNoiseFiles}
