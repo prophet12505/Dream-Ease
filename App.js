@@ -8,6 +8,7 @@ import HomeScreen from './Screens/HomeScreen';
 import SettingsScreen from './Screens/SettingsScreen';
 import RecordScreen from './Screens/RecordScreen';
 import SelectCoverNoiseScreen from './Screens/SelectCoverNoiseScreen'; // <-- Import new screen
+import SuccessfulForgingHypnoScreen from './Screens/SuccessfulForgingHypnoScreen';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ function RecordStack() {
     <Stack.Navigator initialRouteName="RecordScreen">
       <Stack.Screen name="RecordScreen" component={RecordScreen} />
       <Stack.Screen name="SelectCoverNoiseScreen" component={SelectCoverNoiseScreen} />
+      <Stack.Screen name="SuccessfulForgingHypnoScreen" component={SuccessfulForgingHypnoScreen} />
     </Stack.Navigator>
   );
 }
