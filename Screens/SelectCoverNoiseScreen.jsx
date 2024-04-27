@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, TouchableOpacity, TextInput, FlatList, 
 import {useState,useRef} from 'react';
 import AudioPlayer from '../components/AudioPlayer';
 import { useNavigation } from '@react-navigation/native';
+
 const coverImageMapping = {
   // Add mappings for each whitenoise file
   '001': require('../assets/whitenoise_cover/001.jpg'),
@@ -38,6 +39,7 @@ const SelectCoverNoiseScreen = () => {
     const whitenoiseFiles = requireAll(whitenoiseContext);
     setWhiteNoiseFiles(whitenoiseFiles);
   },[])
+  //leverage the item's filename and folder
   const renderWhiteNoiseItem = ({ item }) => (
     <TouchableOpacity
     style={styles.card}
